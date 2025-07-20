@@ -1,0 +1,7 @@
+[tool.black]
+line-length = 119
+
+exclude = "/(\\.venv|alembic|alembic\\.ini)/"
+
+[tool.isort]
+line_length = 119

@@ -134,8 +134,7 @@ celerybeat.pid
 # SageMath parsed files
 *.sage.py
 
-# Environments  ← Инструменты виртуальных окружений
-app/.env
+# Environments
 .envrc
 .venv
 env/
@@ -143,6 +142,11 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+
+.env
+.env.docker
+!.env.example
+!.env.docker.example
 
 # Spyder project settings
 .spyderproject
@@ -212,3 +216,6 @@ __marimo__/
 # macOS
 .DS_Store
 Icon?
+
+# RSA keys
+app/certs

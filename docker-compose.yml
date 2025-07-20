@@ -1,0 +1,53 @@
+services:
+  db:
+    image: postgres:16-alpine
+    env_file:
+      - app/.env.docker
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: trust
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  main_app:
+    build:
+      context: app
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    env_file:
+      - app/.env.docker
+    environment:
+      ENV_FILE: .env.docker
+    depends_on:
+      db:
+        condition: service_healthy
+      external_app:
+        condition: service_started
+    volumes:
+      - certs_data:/app/certs
+    command: >
+      sh -c "alembic upgrade head &&
+             openssl genrsa -out /app/certs/private.pem 2048 &&
+             openssl rsa -in /app/certs/private.pem -outform PEM -pubout -out /app/certs/public.pem &&
+             uvicorn main:app --host 0.0.0.0 --port 8000"
+
+  external_app:
+    build:
+      context: external_app
+      dockerfile: Dockerfile
+    ports:
+      - "8001:8001"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pg_data:
+  certs_data:
